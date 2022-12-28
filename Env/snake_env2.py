@@ -7,11 +7,13 @@ from typing import List, Tuple, Dict, Any, Optional, Union
 import platform
 import os
 
+__version__ = "0.0.2"
 
 class Snake(gym.Env):
-    def __init__(self, grid_size=(12, 12), mode="array", reset_kwargs: Dict[str, Any] = None):
+    def __init__(self, grid_size=(12, 12), mode="array", body_length: Union[int, List[int]] = 3):
         self.__version__ = '0.0.2'
         self.body = [(0, 0)]
+        self.body_length = body_length
         self.direction_vec = np.array([(-1, 0), (0, 1), (1, 0), (0, -1)])
         self.direction = 0
         self.food = (0, 0)
@@ -21,11 +23,6 @@ class Snake(gym.Env):
         self.now = 0
         self.last_eat = 0
         self.max_time = 4 * self.board_size.sum()
-
-        if reset_kwargs is None:
-            self.reset_kwargs = {'body_length': [6, 7]}
-        else:
-            self.reset_kwargs = reset_kwargs
 
         if self.mode == "array":
             self.observation_space = spaces.Box(low=0, high=self.board_size[0] * self.board_size[1],
@@ -58,7 +55,7 @@ class Snake(gym.Env):
             return obs
 
     def reset(self):
-        self.body = self._random_length_generate(self.reset_kwargs['body_length'])
+        self.body = self._random_length_generate()
         self.direction = 0
         self.food = self._generate_food()
 
@@ -139,10 +136,10 @@ class Snake(gym.Env):
             raise ValueError("Food is on the head")
         return np.dot(self.direction_vec[direction], food_direction) / (self.max_time * np.linalg.norm(food_direction))
 
-    def _random_length_generate(self, body_length: Union[List[int], int]):
-        if isinstance(body_length, int):
-            body_length = [body_length, body_length + 1]
-        length = np.random.randint(*body_length)
+    def _random_length_generate(self):
+        if isinstance(self.body_length, int):
+            self.body_length = [self.body_length, self.body_length + 1]
+        length = np.random.randint(*self.body_length)
         body = [(np.random.randint(1, self.board_size[0]-1),
                  np.random.randint(1, self.board_size[1]-1))]
 

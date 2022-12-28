@@ -7,10 +7,10 @@ from typing import List, Tuple, Dict, Any, Optional
 import platform
 import os
 
+__version__ = "0.0.1"
 
 class Snake(gym.Env):
     def __init__(self, grid_size=(12, 12), mode="array"):
-        self.__version__ = '0.0.1'
         self.body = None
         self.direction_vec = np.array([(-1, 0), (0, 1), (1, 0), (0, -1)])
         self.direction = None

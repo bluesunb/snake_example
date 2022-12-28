@@ -5,7 +5,7 @@ import time
 
 from stable_baselines3 import DQN
 
-from Env.snake_env import Snake
+from Env.snake_env import Snake, __version__
 
 
 def main() -> None:
@@ -20,8 +20,12 @@ def main() -> None:
     print(platform_name)
     print(args)
 
-    # env = Snake(grid_size=(8, 8), reset_kwargs={'body_length': 5})
-    env = Snake(grid_size=(8, 8))
+    if __version__ == '0.0.1':
+        env_factory = {'grid_size': (8, 8), 'mode': 'array'}
+    else:
+        env_factory = {'grid_size': (8, 8), 'mode': 'array', 'body_length': 5}
+
+    env = Snake(**env_factory)
     model = DQN.load(args.model)
 
     obs = env.reset()

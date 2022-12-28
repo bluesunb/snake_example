@@ -3,12 +3,19 @@ from DQN.utils import get_schedule
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import MlpPolicy
 
-from Env.snake_env import Snake
+from Env.snake_env import Snake, __version__
 
-env = Snake(grid_size=(8, 8), mode="array")
-eval_env = Snake(grid_size=(8, 8), mode="array")
 
-learn_kwargs = dict(total_timesteps=210000,
+env_factory = {}
+if __version__ == '0.0.1':
+    env_factory = {'grid_size': (8, 8), 'mode': 'array'}
+elif __version__ == '0.0.2':
+    env_factory = {'grid_size': (8, 8), 'mode': 'array', 'body_length': [5, 6]}
+
+env = Snake(**env_factory)
+eval_env = Snake(**env_factory)
+
+learn_kwargs = dict(total_timesteps=200000,
                     log_interval=10,
                     eval_env=eval_env,
                     eval_freq=500,
