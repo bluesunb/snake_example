@@ -104,7 +104,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -127,3 +126,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Pycharm
+.idea/
+
+/logs
+/snake_tensorboard
+best_model.*
+evaluations.*

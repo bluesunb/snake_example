@@ -1,0 +1,42 @@
+from datetime import datetime
+from DQN.utils import get_schedule
+from stable_baselines3 import DQN
+from stable_baselines3.dqn.policies import MlpPolicy
+
+from Env.snake_env import Snake
+
+env = Snake(grid_size=(8, 8), mode="array")
+eval_env = Snake(grid_size=(8, 8), mode="array")
+
+learn_kwargs = dict(total_timesteps=210000,
+                    log_interval=10,
+                    eval_env=eval_env,
+                    eval_freq=500,
+                    n_eval_episodes=10,
+                    tb_log_name=f'snake_dqn_{datetime.now().strftime("%Y%m%d_%H%M")}',
+                    eval_log_path='./logs')
+
+model = DQN(MlpPolicy, env,
+            verbose=1,
+            buffer_size=100000,
+            learning_starts=50000,
+            # learning_rate=1e-4,
+            learning_rate=get_schedule(schedule='MultiplicativeLR',
+                                       initial_value=1e-3,
+                                       schedule_kwargs={'lr_lambda': lambda e: 0.99},
+                                       warmup=0.5,
+                                       resolution=1000),
+            tensorboard_log="./snake_tensorboard",
+            exploration_fraction=0.3,
+            exploration_final_eps=0.05,
+            batch_size=128,
+            train_freq=1,
+            target_update_interval=20000,
+            policy_kwargs={'net_arch': [192, 128]})
+
+print("model_structure")
+print(model.policy)
+input("Press Enter to continue...")
+
+# model.learn(progress_bar=True, **learn_kwargs)
+model.learn(**learn_kwargs)
