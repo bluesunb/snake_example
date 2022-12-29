@@ -69,7 +69,8 @@ class Snake(gym.Env):
         self.direction = action
 
         done, info = False, {}
-        reward = self.heuristic(action) - 1 / self.max_time
+        # reward = self.heuristic(action) - 1 / self.max_time
+        reward = - 1 / self.max_time
         valid, new_head = self._check_head(self.body[0], action, info=info)
         self.body.pop()
 
@@ -153,28 +154,22 @@ class Snake(gym.Env):
         board = np.zeros(self.board_size, dtype=np.uint8)
         board[body[0]] = 1
 
-        def get_candidates(pos: Tuple[int, int]):
-            pos_ = np.array(pos)
-            candidates = pos_ + self.direction_vec
+        def get_candidates(pos):
+            candidates = pos + self.direction_vec
             candidates = candidates[(candidates >= 0).all(axis=1) & (candidates < self.board_size).all(axis=1)]
             candidates = candidates[board[candidates[:, 0], candidates[:, 1]] == 0]
+            candidates = [tuple(x) for x in candidates]
             return candidates
 
-        head = body[0]
-        while len(body) < length:
-            tail = body[-1]
-            tail_cand = get_candidates(tail)
-            head_safe_condition = []
-            for c in tail_cand:
-                board[tuple(c)] = 1
-                head_safe_condition.append(len(get_candidates(head)) > 0)
-                board[tuple(c)] = 0
-
-            tail_cand = tail_cand[head_safe_condition]
-            if len(tail_cand) == 0:
+        for _ in range(length - 1):
+            head_candidates = get_candidates(body[0])
+            body_candidates = head_candidates if len(body) == 1 else get_candidates(body[-1])
+            if len(head_candidates) == 1 and head_candidates[0] in body_candidates:
+                body_candidates.remove(head_candidates[0])
+            if len(body_candidates) == 0:
                 break
-            body.append(tuple(tail_cand[np.random.randint(0, len(tail_cand))]))
-            board[tuple(body[-1])] = 1
+            body.append(body_candidates[np.random.randintn(0, len(body_candidates))])
+            board[body[-1]] = 1
 
         return body
 
@@ -184,7 +179,8 @@ class Snake(gym.Env):
 
         vec = self.direction_vec[direction]
         new_head = head + vec
-        valid = np.logical_and(new_head >= 0, new_head < self.board_size).all()
+        # valid = np.logical_and(new_head >= 0, new_head < self.board_size).all()
+        valid = (new_head >= 0).all() and (new_head < self.board_size).all()
         if not valid:
             if info is not None:
                 info['msg'] = "out of bound"
