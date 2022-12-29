@@ -5,8 +5,8 @@ import time
 
 from stable_baselines3 import DQN
 
-from Env.snake_env import Snake, __version__
-# from Env.snake_env2 import Snake, __version__
+# from Env.snake_env import Snake, __version__
+from Env.snake_env2 import Snake, __version__
 
 
 home = os.path.expanduser("~")
