@@ -37,8 +37,8 @@ class Snake(gym.Env):
 
         if self.mode == 'array':
             obs = np.zeros(self.board_size, dtype=int)
-            for body in self.body:
-                obs[body] = 1
+            for i, body in enumerate(self.body):
+                obs[body] = 1 + i / len(self.body)
             return np.concatenate(
                 [obs.flatten(), self.food, [_get_linear_pos(self.body[0]) > _get_linear_pos(self.body[-1])]])
 
@@ -51,28 +51,63 @@ class Snake(gym.Env):
             return obs
 
     def reset(self):
-        self.body = [(np.random.randint(1, self.board_size[0] - 1),
-                      np.random.randint(1, self.board_size[1] - 1))]
+        # self.body = [(np.random.randint(1, self.board_size[0] - 1),
+        #               np.random.randint(1, self.board_size[1] - 1))]
+        self.body = self._random_length_generate()
 
-        vecs = []
-        for _ in range(2):
-            while True:
-                vec = self.direction_vec[np.random.choice(4)]
-                pos = np.array(self.body[-1]) + vec
-                if np.logical_and(pos >= 0, pos < self.board_size).all() and tuple(pos) not in self.body:
-                    vecs.append(vec)
-                    self.body.append(tuple(pos))
-                    break
-
-        self.direction = np.random.choice(
-            [i for i, vec in enumerate(self.direction_vec) if np.all(vec != -vecs[0])]
-        )
+        # vecs = []
+        # for _ in range(2):
+        #     while True:
+        #         vec = self.direction_vec[np.random.choice(4)]
+        #         pos = np.array(self.body[-1]) + vec
+        #         if np.logical_and(pos >= 0, pos < self.board_size).all() and tuple(pos) not in self.body:
+        #             vecs.append(vec)
+        #             self.body.append(tuple(pos))
+        #             break
+        #
+        # self.direction = np.random.choice(
+        #     [i for i, vec in enumerate(self.direction_vec) if np.all(vec != -vecs[0])]
+        # )
+        self.direction = np.random.choice(4)
         self.food = self._generate_food()
 
         self.now = 0
         self.last_eat = 0
 
         return self.get_obs()
+
+    def _random_length_generate(self):
+        length = np.random.randint(5, 6)
+        body = [(np.random.randint(1, self.board_size[0]-1),
+                 np.random.randint(1, self.board_size[1]-1))]
+
+        board = np.zeros(self.board_size, dtype=np.uint8)
+        board[body[0]] = 1
+
+        def get_candidates(pos: Tuple[int, int]):
+            pos_ = np.array(pos)
+            candidates = pos_ + self.direction_vec
+            candidates = candidates[(candidates >= 0).all(axis=1) & (candidates < self.board_size).all(axis=1)]
+            candidates = candidates[board[candidates[:, 0], candidates[:, 1]] == 0]
+            return candidates
+
+        head = body[0]
+        while len(body) < length:
+            tail = body[-1]
+            tail_cand = get_candidates(tail)
+            head_safe_condition = []
+            for c in tail_cand:
+                board[tuple(c)] = 1
+                head_safe_condition.append(len(get_candidates(head)) > 0)
+                board[tuple(c)] = 0
+
+            tail_cand = tail_cand[head_safe_condition]
+            if len(tail_cand) == 0:
+                break
+            body.append(tuple(tail_cand[np.random.randint(0, len(tail_cand))]))
+            board[tuple(body[-1])] = 1
+
+        return body
 
     def next_pos(self, action: Optional[int] = None) -> Tuple[np.ndarray, bool]:
         head = np.array(self.body[0])
@@ -125,7 +160,7 @@ class Snake(gym.Env):
             if grown:
                 self.food = self._generate_food()
                 self.body.append(self.body[-1])
-                reward = 1
+                reward = 1 * np.sqrt(len(self.body) /3)
 
         return self.get_obs(), reward, done, info
 

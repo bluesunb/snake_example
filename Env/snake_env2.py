@@ -82,7 +82,7 @@ class Snake(gym.Env):
                 reward = 1 * np.sqrt(len(self.body) / 3)
         else:
             done = True
-            reward = -5
+            reward = -1
             if self.now - self.last_eat > self.max_time:
                 info["msg"] = "timeout"
 
@@ -126,15 +126,22 @@ class Snake(gym.Env):
         for row in render_board:
             print(''.join(row))
 
+    # def heuristic(self, direction):
+    #     # head = np.array(self.body[0])
+    #     # head = np.array(self.body[0])
+    #     # food = np.array(self.food)
+    #     # return -np.linalg.norm(head - food) / (np.max(self.board_size) * self.max_time)
+    #     food_direction = np.array(self.food) - np.array(self.body[0])
+    #     if np.all(food_direction == 0):
+    #         raise ValueError("Food is on the head")
+    #     return np.dot(self.direction_vec[direction], food_direction) / (self.max_time * np.linalg.norm(food_direction))
+
     def heuristic(self, direction):
-        # head = np.array(self.body[0])
-        # head = np.array(self.body[0])
-        # food = np.array(self.food)
-        # return -np.linalg.norm(head - food) / (np.max(self.board_size) * self.max_time)
-        food_direction = np.array(self.food) - np.array(self.body[0])
-        if np.all(food_direction == 0):
-            raise ValueError("Food is on the head")
-        return np.dot(self.direction_vec[direction], food_direction) / (self.max_time * np.linalg.norm(food_direction))
+        head = np.array(self.body[0])
+        new_head = head + self.direction_vec[direction]
+        food = np.array(self.food)
+        diff = np.linalg.norm(food - head) - np.linalg.norm(food - new_head)
+        return diff / self.max_time
 
     def _random_length_generate(self):
         if isinstance(self.body_length, int):

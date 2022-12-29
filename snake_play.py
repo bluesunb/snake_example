@@ -6,7 +6,11 @@ import time
 from stable_baselines3 import DQN
 
 from Env.snake_env import Snake, __version__
+# from Env.snake_env2 import Snake, __version__
 
+
+home = os.path.expanduser("~")
+project_path = os.path.join(home, "PycharmProjects", "snake_example")
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -22,11 +26,15 @@ def main() -> None:
 
     if __version__ == '0.0.1':
         env_factory = {'grid_size': (8, 8), 'mode': 'array'}
+        model_path = os.path.join(project_path, 'logs/train2', args.model)
+        # model_path = os.path.join('./logs/train1/', args.model)
     else:
         env_factory = {'grid_size': (8, 8), 'mode': 'array', 'body_length': 5}
+        model_path = os.path.join(project_path, 'logs/train2', args.model)
 
     env = Snake(**env_factory)
-    model = DQN.load(args.model)
+    print(model_path)
+    model = DQN.load(model_path)
 
     obs = env.reset()
     cum_reward = 0
@@ -43,7 +51,7 @@ def main() -> None:
         else:
             os.system('clear')
         action, _states = model.predict(obs, deterministic=True)
-        obs, reward, done, info = env.step(action)
+        obs, reward, done, info = env.step(int(action))
         cum_reward += reward
         if not done and reward < 1:
             if reward < 0:
@@ -52,8 +60,9 @@ def main() -> None:
                 heuristic_reward[1] += reward
         env.render(mode=args.mode)
         i += 1
-        print(f'reward: {reward}, length: {len(env.body)}')
-    print(f"cumulative reward: {cum_reward:.4f}, heuristic reward: {[round(x, 4) for x in heuristic_reward]}")
+        print(f'reward: {reward:.5e}, cum_reward: {cum_reward:.5e},'
+              f' heuristic_reward: {[round(x, 4) for x in heuristic_reward]}')
+    # print(f"cumulative reward: {cum_reward:.4f}, heuristic reward: {[round(x, 4) for x in heuristic_reward]}")
     print(f"info: {info}")
 
 

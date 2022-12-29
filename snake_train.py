@@ -37,7 +37,7 @@ model_kwargs = dict(policy=DQNPolicy,
                     gradient_steps=1,
                     target_update_interval=1e4,
                     exploration_rate=eps_schedule,
-                    tensorboard_log="./snake_tensorboard/",
+                    tensorboard_log="./logs/train1_tensorboard/",
                     create_eval_env=True,
                     policy_kwargs=policy_kwargs,
                     verbose=1,
@@ -49,7 +49,7 @@ learn_kwargs = dict(total_timesteps=2e5,
                     eval_freq=1000,
                     n_eval_episodes=10,
                     tb_log_name=f"snake_dqn_{datetime.now().strftime('%Y%m%d_%H%M')}",
-                    eval_log_path="./")
+                    eval_log_path="./logs/train1/")
 
 model = DQN(**model_kwargs)
 
