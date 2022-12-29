@@ -5,14 +5,14 @@ import time
 
 from stable_baselines3 import DQN
 
-# from Env.snake_env import Snake, __version__
-from Env.snake_env2 import Snake, __version__
+from Env.snake_env3 import Snake, __version__
+# from Env.snake_env2 import Snake, __version__
 
 
 home = os.path.expanduser("~")
 project_path = os.path.join(home, "PycharmProjects", "snake_example")
 
-def main() -> None:
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='best_model')
     parser.add_argument('--max-steps', type=int, default=1000)
@@ -60,7 +60,7 @@ def main() -> None:
                 heuristic_reward[1] += reward
         env.render(mode=args.mode)
         i += 1
-        print(f'reward: {reward:.5e}, cum_reward: {cum_reward:.5e},'
+        print(f'reward: {reward:.5e}, cum_reward: {cum_reward:.5e}',
               f' heuristic_reward: {[round(x, 4) for x in heuristic_reward]}')
     # print(f"cumulative reward: {cum_reward:.4f}, heuristic reward: {[round(x, 4) for x in heuristic_reward]}")
     print(f"info: {info}")

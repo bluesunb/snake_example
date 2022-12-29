@@ -168,7 +168,7 @@ class Snake(gym.Env):
                 body_candidates.remove(head_candidates[0])
             if len(body_candidates) == 0:
                 break
-            body.append(body_candidates[np.random.randint(0, len(body_candidates))])
+            body.append(body_candidates[np.random.randintn(0, len(body_candidates))])
             board[body[-1]] = 1
 
         return body
