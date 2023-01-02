@@ -2,6 +2,6 @@
 
 ---
 
-Training is not quite working yet. I'm still working on it.
+snake game trained by DQN
 
-- Reward engineering is matter.
+Idea is matter.
