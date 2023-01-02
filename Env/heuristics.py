@@ -1,5 +1,5 @@
 import numpy as np
-from snake_env3 import Snake
+from Env.snake_env3 import Snake
 
 
 def distance_diff_heuristic(env: Snake):
@@ -24,12 +24,12 @@ def angle_heuristic(env: Snake):
     return np.dot(direction, food_direction) / (np.linalg.norm(direction) * np.linalg.norm(food_direction))
 
 
-def multi_angle_heuristic(self, body, food, direction):
-    head = np.array(body[0])
-    tail = np.array(body[-1])
-    food = np.array(food)
+def multi_angle_heuristic(env: Snake):
+    head = np.array(env.body[0])
+    tail = np.array(env.body[-1])
+    food = np.array(env.food)
 
-    vec = self.direction_vec[direction]
+    vec = env.direction_vec[env.direction]
     vec_food = food - head
     vec_tail = tail - head
     vec_tail = vec_tail / np.linalg.norm(vec_tail)

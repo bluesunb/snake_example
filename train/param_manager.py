@@ -4,15 +4,20 @@ import torch as th
 
 from typing import List, Tuple, Dict, Any, Optional, Union, Callable
 from dataclasses import dataclass
-from stable_baselines3.common.callbacks import MaybeCallback
-from stable_baselines3.common.type_aliases import Schedule
+from stable_baselines3.common.type_aliases import Schedule, MaybeCallback
 from stable_baselines3.common.buffers import ReplayBuffer
 
 
 def dump_params(params, path):
     with open(path, 'w') as f:
         yaml.dump(params, f, default_flow_style=False)
-        
+
+
+def load_params(path):
+    with open(path, 'r') as f:
+        params = yaml.load(f, Loader=yaml.FullLoader)
+    return params
+
 @dataclass
 class LearningParams:
     total_timesteps: int
@@ -24,7 +29,10 @@ class LearningParams:
     tb_log_name: str = "run"
     eval_log_path: str = None
     reset_num_timesteps: bool = True
-    
+
+    def __iter__(self):
+        return iter(self.__dict__.items())
+
 
 @dataclass
 class DQNParams:
@@ -50,3 +58,6 @@ class DQNParams:
     verbose: int = 0
     seed: Optional[int] = None
     device: Union[th.device, str] = "auto"
+
+    def __iter__(self):
+        return iter(self.__dict__.items())

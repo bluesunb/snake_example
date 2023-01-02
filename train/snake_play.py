@@ -26,11 +26,11 @@ def main():
 
     if __version__ == '0.0.1':
         env_factory = {'grid_size': (8, 8), 'mode': 'array'}
-        model_path = os.path.join(project_path, 'logs/', args.model)
+        model_path = os.path.join(project_path, '../logs/', args.model)
         # model_path = os.path.join('./logs/train1/', args.model)
     else:
         env_factory = {'grid_size': (8, 8), 'mode': 'array', 'body_length': 5}
-        model_path = os.path.join(project_path, 'logs/', args.model)
+        model_path = os.path.join(project_path, '../logs/', args.model)
 
     env = Snake(**env_factory)
     print(model_path)

@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+import argparse
 
 from gym import spaces
 from typing import List, Tuple, Dict, Any, Optional, Union, Callable
@@ -159,14 +160,10 @@ class Snake(gym.Env):
 
         for _ in range(length - 1):
             head_candidates = get_candidates(body[0])
-            body_candidates = head_candidates 
-            if len(body) == 1 else get_candidates(body[-1])
+            body_candidates = head_candidates if len(body) == 1 else get_candidates(body[-1])
             if len(head_candidates) == 1 and head_candidates[0] in body_candidates:
                 body_candidates.remove(head_candidates[0])
             if len(body_candidates) == 0:
-                if len(body) == 1:
-                    print('!!!!!!')
-                    raise ValueError
                 break
             body.append(body_candidates[np.random.randint(0, len(body_candidates))])
             self.board[body[-1]] = 1
@@ -189,24 +186,38 @@ class Snake(gym.Env):
         
         return params
 
-# env = Snake(grid_size=(8, 8), mode="coord")
-# obs = env.reset()
-# env.render()
-# # print(obs)
-# print(env.board)
-# print(len(env.body))
-# done, info = False, {}
-# cum_reward = 0
-# while not done:
-#     action = int(input("action: "))
-#     # time.sleep(0.1)
-#     # action = np.random.choice(obs[-4:].nonzero()[0])
-#     obs, reward, done, info = env.step(action)
-#     env.render()
-#     # print(obs)
-#     print(env.board)
-#     print(env.get_obs()[-4:])
-#     print(f'reward: {reward:.4f}, cum_reward: {cum_reward:.4f}, len: {len(env.body)}')
-#     cum_reward += reward
-#
-# print(info)
+def play_env():
+    env = Snake(grid_size=(8, 8), mode="coord")
+    obs = env.reset()
+    env.render()
+    # print(obs)
+    print(env.board)
+    print(len(env.body))
+    done, info = False, {}
+    cum_reward = 0
+    while not done:
+        action = int(input("action: "))
+        # time.sleep(0.1)
+        # action = np.random.choice(obs[-4:].nonzero()[0])
+        obs, reward, done, info = env.step(action)
+        env.render()
+        # print(obs)
+        print(env.board)
+        print(env.get_obs()[-4:])
+        print(f'reward: {reward:.4f}, cum_reward: {cum_reward:.4f}, len: {len(env.body)}')
+        cum_reward += reward
+
+    print(info)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--demo', action='store_true')
+    args = parser.parse_args()
+    if args.demo:
+        play_env()
+    else:
+        pass
+
+if __name__ == '__main__':
+    main()

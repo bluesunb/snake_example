@@ -6,7 +6,7 @@ from DQN.utils import _get_schedule
 from stable_baselines3.common.utils import get_linear_fn
 
 
-from Env.snake_env import Snake
+from Env._deprecated.snake_env import Snake
 
 # env = Snake(grid_size=(8, 8), mode='array', reset_kwargs={'body_length': 5})
 env = Snake(grid_size=(8, 8), mode='array')
