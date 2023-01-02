@@ -22,6 +22,7 @@ class Snake(gym.Env):
         self.direction_vec = np.array([(-1, 0), (0, 1), (1, 0), (0, -1)])
         self.direction = 0
         self.food = (0, 0)
+        self.before_food = self.food
         self.mode = mode
         self.board = np.zeros(grid_size, dtype=np.uint8)
         self.board_size = np.array(grid_size)
@@ -81,6 +82,7 @@ class Snake(gym.Env):
         else:
             black_square = chr(int('2b1b', 16))
             white_square = chr(int('2b1c', 16))
+            before_food = chr(int('1f7e9', 16))
             food = chr(int('1f34e', 16))
             # food = chr(int('1f7e7', 16))
 
@@ -91,6 +93,8 @@ class Snake(gym.Env):
                 return black_square
             elif v == -1:
                 return food
+            elif v == -2:
+                return before_food
 
         if platform.system() == 'Windows':
             os.system('cls')
@@ -100,6 +104,7 @@ class Snake(gym.Env):
         render_board = self.board.astype(int).copy()
         food_pos = self.food
         render_board[food_pos] = -1
+        render_board[self.before_food] = -2
         render_board = np.vectorize(encode)(render_board)
         for row in render_board:
             print(''.join(row))
@@ -110,7 +115,7 @@ class Snake(gym.Env):
         # self._record_action.append(action)
 
         done, info = False, {}
-        reward = self.heuristic(self.body, self.food, self.direction)
+        reward = 0
         new_head = self.body[0] + self.direction_vec[self.direction]
         self.board[self.body.pop()] -= 1
 
@@ -126,7 +131,7 @@ class Snake(gym.Env):
                 self.body.append(self.body[-1])
                 self.board[self.body[-1]] += 1
                 self.food = self._generate_food()
-                reward += 1
+            reward = self.heuristic(self.body, self.food, self.direction)
         else:
             done = True
             reward = -10
@@ -154,8 +159,9 @@ class Snake(gym.Env):
 
     def _random_length_generate(self):
         if isinstance(self.body_length, int):
-            self.body_length = [self.body_length, self.body_length + 1]
-        length = np.random.randint(*self.body_length)
+            self.body_length = [self.body_length]
+        # length = np.random.randint(*self.body_length)
+        length = np.random.choice(self.body_length)
         body = [(np.random.randint(1, self.board_size[0]-1),
                  np.random.randint(1, self.board_size[1]-1))]
 
@@ -173,10 +179,7 @@ class Snake(gym.Env):
             body_candidates = head_candidates if len(body) == 1 else get_candidates(body[-1])
             if len(head_candidates) == 1 and head_candidates[0] in body_candidates:
                 body_candidates.remove(head_candidates[0])
-            # if len(body_candidates) == 0:
-            #     if len(body) == 1:
-            #         print('!!!!!!')
-            #         raise ValueError
+            if len(body_candidates) == 0:
                 break
             body.append(body_candidates[np.random.randint(0, len(body_candidates))])
             self.board[body[-1]] = 1
@@ -189,6 +192,7 @@ class Snake(gym.Env):
                     np.random.randint(0, self.board_size[1]))
             if food not in self.body:
                 # self._record_food.append(food)
+                self.before_food = self.food
                 return food
 
 # env = Snake(grid_size=(8, 8), mode="coord")

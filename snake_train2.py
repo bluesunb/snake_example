@@ -14,7 +14,7 @@ if __version__ == '0.0.1':
     env_factory = {'grid_size': (8, 8), 'mode': 'array'}
 # elif __version__ == '0.0.2':
 else:
-    env_factory = {'grid_size': (8, 8), 'mode': 'coord', 'body_length': 5}
+    env_factory = {'grid_size': (8, 8), 'mode': 'coord', 'body_length': [5]}
 
 env = Snake(**env_factory)
 eval_env = Snake(**env_factory)
