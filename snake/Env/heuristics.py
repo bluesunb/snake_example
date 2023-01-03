@@ -2,6 +2,9 @@ import numpy as np
 from snake.Env.snake_env_param import Snake
 
 
+def identity(env: Snake):
+    return 0
+
 def distance_diff_heuristic(env: Snake):
     head = env.body[0]
     new_head = head + env.direction_vec[env.direction]

@@ -1,9 +1,10 @@
+from pprint import pprint
 from datetime import datetime
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import MlpPolicy
 
 # from Env.snake_env import Snake, __version__
-from snake.Env import Snake, __version__
+from snake.Env.snake_env3 import Snake, __version__
 
 env_factory = {}
 if __version__ == '0.0.1':
@@ -43,7 +44,9 @@ model = DQN(MlpPolicy, env,
 
 print("model_structure")
 print(model.policy)
-# input("Press Enter to continue...")
+pprint(model.__dict__)
+pprint(learn_kwargs)
+input("Press Enter to continue...")
 
 # model.learn(progress_bar=True, **learn_kwargs)
 model.learn(**learn_kwargs)

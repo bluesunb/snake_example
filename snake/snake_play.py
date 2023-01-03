@@ -4,11 +4,12 @@ import platform
 import time
 import yaml
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from stable_baselines3 import DQN
 from stable_baselines3.common.evaluation import evaluate_policy
 
 from Env.snake_env_param import Snake
-from param_manager import DQNParams, LearningParams
 
 home = os.path.expanduser("~")
 project_path = os.path.join(home, "PycharmProjects", "snake_example")
@@ -32,7 +33,7 @@ def main():
     model_path, config_path = paths
     config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
 
-    env_params = config['env_params']
+    env_params = config['env']
 
     env = Snake(**env_params)
     model = DQN.load(model_path)
