@@ -136,7 +136,7 @@ class Snake(gym.Env):
             done = True
             reward = -10
             if not bound_condition:
-                msg = 'out of bound'
+                msg = 'out of body'
             elif not body_condition:
                 msg = 'body'
             else:

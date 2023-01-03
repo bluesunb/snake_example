@@ -5,6 +5,7 @@ import argparse
 from gym import spaces
 from typing import List, Tuple, Dict, Any, Optional, Union, Callable
 
+from snake.Env import heuristics
 import platform
 import os
 
@@ -16,7 +17,7 @@ class Snake(gym.Env):
                  grid_size=(12, 12),
                  mode="coord",
                  body_length: Union[int, List[int]] = 3,
-                 heuristic: Optional[Callable] = None,
+                 heuristic: str = 'identity',
                  heuristic_kwargs: Optional[Dict[str, Any]] = None):
 
         self.__version__ = '0.0.3'
@@ -30,17 +31,21 @@ class Snake(gym.Env):
         self.board = np.zeros(grid_size, dtype=np.uint8)
         self.board_size = np.array(grid_size)
 
-        self.heuristic = heuristic
+        self.heuristic = getattr(heuristics, heuristic)
         self.heuristic_kwargs = {} if heuristic_kwargs is None else heuristic_kwargs
-        
+
         self.now = 0
         self.last_eat = 0
-        self.max_time = 4 * self.board_size.sum()
+        self._max_time = 4 * self.board_size.sum()
 
         self.observation_space = spaces.Box(low=0, high=self.board_size[0] * self.board_size[1] + 1,
                                             shape=(self.board_size[0] * self.board_size[1] * 2 + 4, ), dtype=np.uint8)
         self.action_space = spaces.Discrete(4)
         self.reset()
+
+    @property
+    def max_time(self):
+        return self._max_time + 2 * len(self.body)
 
     def get_obs(self):
         candidates = self.body[0] + self.direction_vec
@@ -212,7 +217,7 @@ def play_env():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--demo', action='store_true')
+    parser.add_argument('--demo', action='store_true', default=False)
     args = parser.parse_args()
     if args.demo:
         play_env()
