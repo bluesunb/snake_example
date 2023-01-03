@@ -27,19 +27,19 @@ def main():
                       heuristic=heuristics.multi_angle_heuristic)
 
     dqn_config = dict(verbose=1,
-                      buffer_size=int(2e5),
-                      learning_starts=int(5e4),
+                      buffer_size=200000,
+                      learning_starts=50000,
                       learning_rate=1e-4,
                       batch_size=256,
                       train_freq=1,
                       exploration_fraction=0.2,
                       exploration_final_eps=0.05,
-                      target_update_interval=int(2e4),
+                      target_update_interval=200000,
                       tensorboard_log='./logs',
                       policy_kwargs=dict(net_arch=[128, 128]),
                       create_eval_env=True)
 
-    learning_config = dict(total_timesteps=3e5,
+    learning_config = dict(total_timesteps=300000,
                            log_interval=10,
                            eval_freq=500,
                            n_eval_episodes=10,
