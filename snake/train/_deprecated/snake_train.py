@@ -1,12 +1,12 @@
 from datetime import datetime
-from DQN.dqn import DQN
-from DQN.features_extractor import SnakeFeaturesExtractor
-from DQN.policy import DQNPolicy
-from DQN.utils import _get_schedule
+from snake.DQN.dqn import DQN
+from snake.DQN.features_extractor import SnakeFeaturesExtractor
+from snake.DQN.policy import DQNPolicy
+from snake.DQN.utils import _get_schedule
 from stable_baselines3.common.utils import get_linear_fn
 
 
-from Env._deprecated.snake_env import Snake
+from snake.Env import Snake
 
 # env = Snake(grid_size=(8, 8), mode='array', reset_kwargs={'body_length': 5})
 env = Snake(grid_size=(8, 8), mode='array')

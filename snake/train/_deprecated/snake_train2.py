@@ -1,13 +1,9 @@
 from datetime import datetime
-from DQN.utils import get_schedule
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import MlpPolicy
 
 # from Env.snake_env import Snake, __version__
-from Env.snake_env3 import Snake, __version__
-
-import tensorboard
-
+from snake.Env import Snake, __version__
 
 env_factory = {}
 if __version__ == '0.0.1':

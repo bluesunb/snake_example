@@ -1,5 +1,5 @@
 import numpy as np
-from Env.snake_env3 import Snake
+from snake.Env.snake_env_param import Snake
 
 
 def distance_diff_heuristic(env: Snake):

@@ -14,7 +14,7 @@ from stable_baselines3.common.torch_layers import (
 from stable_baselines3.common.type_aliases import Schedule
 
 # from study.w6.DQN.utils import create_mlp
-from DQN.utils import create_mlp
+from snake.DQN.utils import create_mlp
 
 
 class QNetwork(BasePolicy):
