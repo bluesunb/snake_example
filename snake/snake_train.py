@@ -8,8 +8,7 @@ from datetime import datetime
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import MlpPolicy
 
-from snake.Env import heuristics
-from snake.Env.snake_env_param import Snake
+from snake.Env.snake_env import Snake
 from param_manager import DQNParams, LearningParams
 
 
@@ -90,5 +89,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # sys.argv = ['train/snake_train_param.py', ]
+    # sys.argv = ['train/snake_train.py', ]
     main()

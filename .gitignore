@@ -130,7 +130,8 @@ dmypy.json
 # Pycharm
 .idea/
 
-/logs
+logs/
+/snake/logs
 /snake_tensorboard
 best_model.*
 evaluations.*

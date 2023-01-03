@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from stable_baselines3 import DQN
 from stable_baselines3.common.evaluation import evaluate_policy
 
-from Env.snake_env_param import Snake
+from Env.snake_env import Snake
 
 home = os.path.expanduser("~")
 project_path = os.path.join(home, "PycharmProjects", "snake_example")

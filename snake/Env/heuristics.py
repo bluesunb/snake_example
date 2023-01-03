@@ -1,5 +1,5 @@
 import numpy as np
-from snake.Env.snake_env_param import Snake
+from snake.Env.snake_env import Snake
 
 
 def identity(env: Snake):
