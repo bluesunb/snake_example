@@ -10,6 +10,7 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.evaluation import evaluate_policy
 
 from Env.snake_env import Snake
+from param_manager import load_params
 
 home = os.path.expanduser("~")
 project_path = os.path.join(home, "PycharmProjects", "snake_example")
@@ -30,8 +31,13 @@ def main():
     print(platform_name)
     print(args)
 
-    model_path, config_path = paths
-    config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
+    if len(paths) == 1:
+        model_path = paths[0] + '/best_model.zip'
+        config_path = paths[0] + '/config.yaml'
+    else:
+        model_path, config_path = paths
+    config = load_params(config_path)
+    # config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
 
     env_params = config['env']
 

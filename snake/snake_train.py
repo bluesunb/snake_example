@@ -8,8 +8,12 @@ from datetime import datetime
 from stable_baselines3 import DQN
 from stable_baselines3.dqn.policies import MlpPolicy
 
+from snake.Env import heuristics
 from snake.Env.snake_env import Snake
-from param_manager import DQNParams, LearningParams
+from param_manager import (
+    DQNParams, LearningParams, SnakeParams,
+    dump_params, load_params
+)
 
 
 def main():
@@ -22,53 +26,52 @@ def main():
     time_stamp = datetime.now().strftime("%Y%m%d_%H%M")
 
     # default config
-    env_config = dict(grid_size=(8, 8),
-                      mode='coord',
-                      body_length=[5],
-                      heuristic='multi_angle_heuristic')
+    env_params = SnakeParams(grid_size=(8, 8),
+                             mode='coord',
+                             body_length=[5],
+                             heuristic=heuristics.multi_angle_heuristic)
 
-    dqn_config = dict(verbose=1,
-                      buffer_size=200000,
-                      learning_starts=50000,
-                      learning_rate=2e-4,
-                      batch_size=256,
-                      train_freq=1,
-                      exploration_fraction=0.3,
-                      exploration_final_eps=0.05,
-                      target_update_interval=20000,
-                      tensorboard_log='./logs',
-                      policy_kwargs=dict(net_arch=[194, 128]))
-    
-    learning_config = dict(total_timesteps=200000,
-                           log_interval=10,
-                           eval_freq=500,
-                           n_eval_episodes=10,
-                           tb_log_name=f'snake',
-                           eval_log_path='./logs')
+    dqn_params = DQNParams(verbose=1,
+                           buffer_size=200000,
+                           learning_starts=50000,
+                           learning_rate=2e-4,
+                           batch_size=256,
+                           train_freq=1,
+                           exploration_fraction=0.3,
+                           exploration_final_eps=0.05,
+                           target_update_interval=20000,
+                           tensorboard_log='./logs',
+                           policy_kwargs=dict(net_arch=[194, 128]))
+
+    learning_params = LearningParams(total_timesteps=200000,
+                                     log_interval=10,
+                                     eval_freq=500,
+                                     n_eval_episodes=10,
+                                     tb_log_name=f'snake',
+                                     eval_log_path='./logs',
+                                     eval_env=Snake(**env_params.__dict__))
 
     # load config
     if os.path.exists(args.config):
         print('=== Config found! ===')
-        params = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
-        dqn_config.update(params.get('dqn', {}))
-        learning_config.update(params.get('learning', {}))
+        params = load_params(args.config)
+        env_params.update(**params['env'])
+        dqn_params.update(**params['model'])
+        learning_params.update(**params['learn'])
 
     # eval log path setting to save model
     if args.force_now:
         print('=== Force now!: {} ==='.format(time_stamp))
-        learning_config['tb_log_name'] = learning_config['tb_log_name'] + f'_{time_stamp}'
+        learning_params.tb_log_name = learning_params.tb_log_name + f'_{time_stamp}'
 
-    log_path = os.path.join(learning_config['eval_log_path'],
-                            f'{learning_config["tb_log_name"]}_1')
+    # generate log path
+    log_path = os.path.join(learning_params.eval_log_path,
+                            f'{learning_params.tb_log_name}_1')
 
-    learning_config['eval_log_path'] = log_path
+    learning_params.eval_log_path = log_path
 
-
-    # create env, parameters
-    dqn_params = DQNParams(**dqn_config)
-    learning_params = LearningParams(**learning_config)
-    env = Snake(**env_config)
-
+    # create env
+    env = Snake(**env_params.__dict__)
 
     # create model
     if args.model and os.path.exists(args.model + '.zip'):
@@ -77,15 +80,12 @@ def main():
     else:
         model = DQN(MlpPolicy, env, **dqn_params.__dict__)
 
-    model.learn(eval_env=Snake(**env_config),
-                **learning_params.__dict__)
+    model.learn(**learning_params.__dict__)
     model.save(os.path.join(log_path, 'last_model'))
 
     # save config
-    with open(os.path.join(log_path, 'config.yaml'), 'w') as f:
-        yaml.dump({'env': env_config,
-                   'dqn': dqn_params.__dict__,
-                   'learning': learning_params.__dict__}, f)
+    dump_params(os.path.join(log_path, 'config.yaml'),
+                env_params, dqn_params, learning_params)
 
 
 if __name__ == '__main__':

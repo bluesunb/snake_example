@@ -7,8 +7,14 @@ from dataclasses import dataclass
 from stable_baselines3.common.type_aliases import Schedule, MaybeCallback
 from stable_baselines3.common.buffers import ReplayBuffer
 
+import snake.Env.heuristics
 
-def dump_params(params, path):
+
+def dump_params(path, env_params, model_params, learning_params):
+    params = {'env': env_params.__dict__,
+              'model': model_params.__dict__,
+              'learning': learning_params.__dict__}
+
     with open(path, 'w') as f:
         yaml.dump(params, f, default_flow_style=False)
 
@@ -17,6 +23,21 @@ def load_params(path):
     with open(path, 'r') as f:
         params = yaml.load(f, Loader=yaml.FullLoader)
     return params
+
+
+@dataclass
+class SnakeParams:
+    grid_size: Tuple[int, int] = (12, 12)
+    mode: str = "coord"
+    body_length: Union[int, List[int]] = 3
+    heuristic: Callable = snake.Env.heuristics.identity
+    heuristic_kwargs: Optional[Dict[str, Any]] = None
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self
+
 
 @dataclass
 class LearningParams:
@@ -30,8 +51,10 @@ class LearningParams:
     eval_log_path: str = None
     reset_num_timesteps: bool = True
 
-    def __iter__(self):
-        return iter(self.__dict__.items())
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self
 
 
 @dataclass
@@ -59,5 +82,7 @@ class DQNParams:
     seed: Optional[int] = None
     device: Union[th.device, str] = "auto"
 
-    def __iter__(self):
-        return iter(self.__dict__.items())
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self

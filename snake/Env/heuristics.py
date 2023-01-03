@@ -5,6 +5,7 @@ from snake.Env.snake_env import Snake
 def identity(env: Snake):
     return 0
 
+
 def distance_diff_heuristic(env: Snake):
     head = env.body[0]
     new_head = head + env.direction_vec[env.direction]
@@ -19,7 +20,7 @@ def distance_heuristic(env: Snake):
 
 
 def angle_heuristic(env: Snake):
-    head= env.body[0]
+    head = env.body[0]
     new_head = head + env.direction_vec[env.direction]
     food = env.food
     direction = new_head - head

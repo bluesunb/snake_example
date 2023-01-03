@@ -5,7 +5,6 @@ import argparse
 from gym import spaces
 from typing import List, Tuple, Dict, Any, Optional, Union, Callable
 
-from snake.Env import heuristics
 import platform
 import os
 
@@ -17,7 +16,7 @@ class Snake(gym.Env):
                  grid_size=(12, 12),
                  mode="coord",
                  body_length: Union[int, List[int]] = 3,
-                 heuristic: str = 'identity',
+                 heuristic: Callable = None,
                  heuristic_kwargs: Optional[Dict[str, Any]] = None):
 
         self.__version__ = '0.0.3'
@@ -31,7 +30,7 @@ class Snake(gym.Env):
         self.board = np.zeros(grid_size, dtype=np.uint8)
         self.board_size = np.array(grid_size)
 
-        self.heuristic = getattr(heuristics, heuristic)
+        self.heuristic = heuristic if heuristic is not None else lambda x: 0
         self.heuristic_kwargs = {} if heuristic_kwargs is None else heuristic_kwargs
 
         self.now = 0
