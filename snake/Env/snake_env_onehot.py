@@ -87,11 +87,13 @@ class Snake(gym.Env):
         if mode == "char":
             black_square = chr(9608) * 2
             white_square = chr(9617) * 2
+            large_x = chr(10240) * 2
             # food = chr(9679) * 2
             food = chr(9675) * 2
         else:
             black_square = chr(int('2b1b', 16))
             white_square = chr(int('2b1c', 16))
+            large_x = chr(int('2800', 16))
             before_food = chr(int('1f7e9', 16))
             food = chr(int('1f34e', 16))
             # food = chr(int('1f7e7', 16))
@@ -99,11 +101,13 @@ class Snake(gym.Env):
         def encode(v):
             if v == 0:
                 return white_square
-            elif v > 0:
+            elif v == 1:
+                return large_x
+            elif v == 2:
+                return food
+            elif v > 2:
                 return black_square
             elif v == -1:
-                return food
-            elif v == -2:
                 return before_food
 
         if platform.system() == 'Windows':
@@ -112,9 +116,7 @@ class Snake(gym.Env):
             os.system('clear')
 
         render_board = self.board.astype(int).copy()
-        food_pos = self.food
-        render_board[food_pos] = -1
-        render_board[self.before_food] = -2
+        render_board[self.before_food] = -1
         render_board = np.vectorize(encode)(render_board)
         for row in render_board:
             print(''.join(row))
@@ -141,7 +143,6 @@ class Snake(gym.Env):
             if self.food == tuple(new_head):
                 reward = 10
                 self.last_eat = self.now
-                self.body.append(self.body[-1])
                 self.food = self._generate_food()
             else:
                 reward = self.heuristic(self, **self.heuristic_kwargs)
@@ -191,8 +192,6 @@ class Snake(gym.Env):
             food = (np.random.randint(1, self.board_size[0]-1),
                     np.random.randint(1, self.board_size[1]-1))
             if food not in self.body:
-                if self.before_food is not None:
-                    self.board[self.before_food] = 0
                 self.before_food = self.food
                 self.board[food] = self.FOOD
                 return food
@@ -222,6 +221,7 @@ def play_env():
         env.render()
         # print(obs)
         print(env.board)
+        print(env.body)
         # print(env.get_obs()[-4:])
         print(f'reward: {reward:.4f}, cum_reward: {cum_reward:.4f}, len: {len(env.body)}')
         cum_reward += reward
