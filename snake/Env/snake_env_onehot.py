@@ -47,7 +47,7 @@ class Snake(gym.Env):
         self._max_time = 4 * self.board_size.sum()
 
         self.observation_space = spaces.Box(low=0, high=1, shape=(6, *self.board_size), dtype=np.uint8)
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(3)  # 0: no, 1: left, 2: right
         self.reset()
 
     @property
@@ -73,7 +73,9 @@ class Snake(gym.Env):
         self.board = np.zeros(self.board_size - 2, dtype=np.uint8)
         self.board = np.pad(self.board, 1, 'constant', constant_values=1)
         self.body = self._random_length_generate()
-        self.direction = 0
+
+        direction = np.array(self.body[0]) - np.array(self.body[1])
+        self.direction = (self.direction_vec == direction).all(axis=1).argmax()
         self.food = self._generate_food()
 
         self.now = 0
@@ -119,7 +121,8 @@ class Snake(gym.Env):
 
     def step(self, action):
         self.now += 1
-        self.direction = action
+        if action > 0:
+            self.direction = (self.direction + 2 * action + 1) % 4
 
         done, info = False, {}
         reward = 0
