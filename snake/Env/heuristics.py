@@ -20,12 +20,13 @@ def distance_heuristic(env: Snake):
 
 
 def angle_heuristic(env: Snake):
-    head = env.body[0]
+    head = np.array(env.body[0])
     new_head = head + env.direction_vec[env.direction]
-    food = env.food
+    food = np.array(env.food)
     direction = new_head - head
     food_direction = food - head
-    return np.dot(direction, food_direction) / (np.linalg.norm(direction) * np.linalg.norm(food_direction))
+    cos = np.dot(direction, food_direction) / (np.linalg.norm(direction) * np.linalg.norm(food_direction))
+    return 1 if cos >= 0 else -1
 
 
 def multi_angle_heuristic(env: Snake):

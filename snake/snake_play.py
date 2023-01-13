@@ -81,4 +81,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # sys.argv.append('logs/snake_20230113_1559_1/')
     main()

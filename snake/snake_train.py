@@ -28,8 +28,9 @@ def main():
     # default config
     env_params = SnakeParams(grid_size=(8, 8),
                              mode='coord',
-                             body_length=[5],
-                             heuristic=heuristics.multi_angle_heuristic)
+                             body_length=[4],
+                             # heuristic=heuristics.multi_angle_heuristic)
+                             heuristic=heuristics.angle_heuristic)
 
     dqn_params = DQNParams(verbose=1,
                            buffer_size=200000,
@@ -84,6 +85,7 @@ def main():
     model.save(os.path.join(log_path, 'last_model'))
 
     # save config
+    learning_params.eval_env = None
     dump_params(os.path.join(log_path, 'config.yaml'),
                 env_params, dqn_params, learning_params)
 

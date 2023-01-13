@@ -47,6 +47,9 @@ class Snake(gym.Env):
         return self._max_time + 2 * len(self.body)
 
     def get_obs(self):
+        """
+        obs: [food_coord, snake_body_coord, padding, actions_can_take(one-hot)]
+        """
         candidates = self.body[0] + self.direction_vec
         indices = np.arange(4)
         bound_condition = np.logical_and((candidates >= 0).all(axis=1), (candidates < self.board.shape).all(axis=1))
@@ -133,12 +136,13 @@ class Snake(gym.Env):
                 self.body.append(self.body[-1])
                 self.board[self.body[-1]] += 1
                 self.food = self._generate_food()
-            reward = self.heuristic(self, **self.heuristic_kwargs)
+            else:
+                reward = self.heuristic(self, **self.heuristic_kwargs)
         else:
             done = True
-            reward = -10
+            reward = -100
             if not bound_condition:
-                msg = 'out of body'
+                msg = 'out of board'
             elif not body_condition:
                 msg = 'body'
             else:
