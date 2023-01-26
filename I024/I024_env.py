@@ -1,8 +1,26 @@
+import sys
+
 import numpy as np
 import gym
 
 from argparse import ArgumentParser
 from gym import spaces
+
+
+def vom(arr, debug=False):
+    arr = 2**arr
+    c, r = np.meshgrid(np.arange(arr.shape[1]), np.arange(arr.shape[0]))
+    c_com = np.average(c, weights=arr)
+    r_com = np.average(r, weights=arr)
+
+    c_vom = np.average((c - c_com)**2, weights=arr)
+    r_vom = np.average((r - r_com)**2, weights=arr)
+
+    if debug:
+        print(f'com: ({r_com:.4f}, {c_com:.4f})')
+        print(f'vom: ({r_vom:.4f}, {c_vom:.4f}), norm: {np.sqrt(r_vom + c_vom):.4f}')
+
+    return np.sqrt(c_vom + r_vom)
 
 
 class I024(gym.Env):
@@ -12,15 +30,15 @@ class I024(gym.Env):
         self.max = 100
         # self.fail_penalty = -1
 
-        self.observation_space = spaces.Box(low=0, high=self.max,
-                                            shape=self.board.shape,
+        self.observation_space = spaces.Box(low=0, high=20,
+                                            shape=(1, *self.board.shape),
                                             dtype=int)
 
         self.action_space = spaces.Discrete(4)
         self.reset()
 
     def get_obs(self):
-        return self.board.copy()
+        return self.board.copy()[None, ...]
 
     def reset(self):
         self.board = self.random_generate(np.zeros_like(self.board, dtype=int), 2)
@@ -44,28 +62,30 @@ class I024(gym.Env):
             reward = self.fail_penalty()
 
         return self.get_obs(), reward, done, info
-    
+
     def calculate_reward(self, new_board):
-        old_board_nonzero = self.board[self.board.nonzero()]
-        new_board_nonzero = new_board[new_board.nonzero()]
-        
-        old_reward = np.max(old_board_nonzero)
-        new_reward = np.max(new_board_nonzero)
-        
-        print(f'old: {old_reward}, new: {new_reward}')
-        # return np.log2(np.clip(new_reward - old_reward, 0, np.inf) + 1)
-        return np.log2(new_reward ** 2 - old_reward ** 2 + 1)
-    
+        # reward = np.log2(np.max(new_board) - np.max(self.board) + 1)
+        # heuristic = (vom(self.board) - vom(new_board)) * np.max(new_board)
+        # return reward + heuristic
+
+        old_nonzero = np.nonzero(self.board)
+        new_nonzero = np.nonzero(new_board)
+
+        old_mean = np.mean(2 ** self.board)
+        new_mean = np.mean(2 ** new_board)
+
+        return np.log2(new_mean - old_mean + 1)
+
     def fail_penalty(self):
         m = np.max(self.board)
-        return - 0.5 * m * (m + 1)
-    
+        return -100
+
     def render(self, mode='human'):
         print('-' * 4 * self.board.shape[1])
         for line in self.board:
             print('|'.join([f'{i if i>0 else "": ^3}' for i in line]), end='|\n')
             print('-' * 4 * self.board.shape[1])
-    
+
     @staticmethod
     def random_generate(board, n=1):
         zero = np.argwhere(board == 0)
@@ -93,7 +113,7 @@ class I024(gym.Env):
             if np.all(h_dup) and np.all(v_dup):
                 info['msg'] = 'No more move'
                 return True
-    
+
     def _push_arr(self, arr):
         l = self.board.shape[0]
         a_sort = np.argsort(arr == 0, axis=1)
@@ -130,7 +150,6 @@ class I024(gym.Env):
 
         return moved
 
-
     def _act(self, arr, op):
         if op == 0:
             return self._move(arr.T).T
@@ -143,7 +162,6 @@ class I024(gym.Env):
 
 
 def play():
-
     action_map = {'w': 0,
                   'd': 1,
                   's': 2,
@@ -153,22 +171,25 @@ def play():
     env.reset()
     env.render()
     done, info = False, {}
+    cum_reward = 0
     while not done:
         action = action_map[input('action: ')]
         obs, reward, done, info = env.step(action)
         env.render()
-        print(f'Now: {env.now}, Reward: {reward}')
+        cum_reward += reward
+        print(f'Now: {env.now}, Reward: {reward:.4f}, Cumulative Reward: {cum_reward:.4f}')
 
     print(info)
     
 
 
 if __name__ == '__main__':
+    sys.argv.append('--demo')
     parser = ArgumentParser()
     parser.add_argument('--demo', action='store_true')
-    parser.parse_args()
+    args = parser.parse_args()
     
-    if parser.demo:
+    if args.demo:
         play()
     else:
         pass
